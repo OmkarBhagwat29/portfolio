@@ -1,5 +1,4 @@
 import {
-  AxesHelper,
   Color,
   LOD,
   PerspectiveCamera,

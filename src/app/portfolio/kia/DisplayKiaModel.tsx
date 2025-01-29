@@ -1,19 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useKiaContext } from "@/app/context/kia/KiaContext";
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
-  BufferAttribute,
-  BufferGeometry,
   DirectionalLight,
-  DirectionalLightHelper,
-  DoubleSide,
   HemisphereLight,
   Mesh,
-  MeshStandardMaterial,
   Object3D,
-  Scene,
   SRGBColorSpace,
-  Vector2,
   Vector3,
 } from "three";
 import React, { useEffect, useState } from "react";
@@ -23,7 +17,7 @@ import AddDirectionalLight from "@/app/three/Components/Lights/AddDirectionalLig
 import { ChunkedLoader } from "@/app/three/libs/ChunkLoader";
 
 import { adjustMeshPosition } from "@/app/three/libs/ObjectHelper";
-import { BufferGeometryUtils } from "three/examples/jsm/Addons.js";
+
 
 const DisplayKiaModel = () => {
   const { sm, setModel } = useKiaContext();
@@ -31,10 +25,6 @@ const DisplayKiaModel = () => {
   const [ambLight, setAmbLight] = useState<AmbientLight | undefined>(undefined);
 
   const [dirLight, setDirLight] = useState<DirectionalLight | undefined>(
-    undefined
-  );
-
-  const [topLight, setTopLight] = useState<DirectionalLight | undefined>(
     undefined
   );
 
@@ -73,7 +63,6 @@ const DisplayKiaModel = () => {
   useEffect(() => {
     if (sm?.scene) {
       const loadModel = async () => {
-        const panelModel = "/models/glb/panel-draco.glb";
         const chunkLowUrls = [
           //panelModel,
           "/models/glb/kia/low-details/kia_1.glb",
@@ -111,7 +100,6 @@ const DisplayKiaModel = () => {
 
         const lowLevelDetails: Object3D = new Object3D();
         const highLevelDetails: Object3D = new Object3D();
-        const geometriesToMerge: BufferGeometry[] = [];
 
         const lowChunks = await loader.loadModelChunks(
           chunkLowUrls,
