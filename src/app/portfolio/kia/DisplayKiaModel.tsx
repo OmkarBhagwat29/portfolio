@@ -78,14 +78,14 @@ const DisplayKiaModel = () => {
           //panelModel,
           "/models/glb/kia/low-details/kia_1.glb",
 
-          "/models/glb/kia/low-details/kia_2.glb",
+          "/models/glb/kia/low-details/transition.glb",
 
           "/models/glb/kia/low-details/kia_3.glb",
         ];
 
         const chunkHightUrls = [
           "/models/glb/kia/high-details/kia_1.glb",
-          "/models/glb/kia/high-details/kia_2.glb",
+          "/models/glb/kia/high-details/transition.glb",
           "/models/glb/kia/high-details/kia_3.glb",
         ];
 
