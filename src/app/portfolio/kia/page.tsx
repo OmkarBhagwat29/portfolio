@@ -2,7 +2,7 @@ import React from "react";
 
 import fs from "fs";
 import path from "path";
-import Kia from "./portfolio/kia/Kia";
+import Kia from "./Kia";
 
 const page = () => {
   const directory = "images/kia";
