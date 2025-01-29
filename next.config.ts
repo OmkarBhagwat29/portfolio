@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   output: isProd ? "export" : undefined,
   images: { unoptimized: true },
   trailingSlash: true, // Required for GitHub Pages routing
-  basePath: isProd ? "/portfolio/kia" : "", // Your repository name
-  assetPrefix: isProd ? "/portfolio/" : "", // Match basePath with trailing slash
+  basePath: isProd ? "/portfolio" : "", // Your repository name
+  assetPrefix: isProd ? "/portfolio" : "", // Match basePath with trailing slash
 
   // Redirect configuration (if you still need this)
   async redirects() {
