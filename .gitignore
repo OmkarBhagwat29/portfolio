@@ -1,0 +1,41 @@
+# Dependencies
+/node_modules/
+/.pnp
+.pnp.js
+
+# Build files
+/.next/
+/out/
+.next/
+build/
+
+# Cache
+.cache/
+
+# Environment files
+.env*.local
+.env
+
+# Logs
+*.log
+logs/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Local development
+.turbo/
+dist/
+node_modules/
+
+# Testing
+/coverage/
+.nyc_output/
+
+# Miscellaneous
+*.tsbuildinfo
+.nextflow/
