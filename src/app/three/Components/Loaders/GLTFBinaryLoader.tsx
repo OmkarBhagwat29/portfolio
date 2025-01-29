@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useMemo } from "react";
-import { LoadingManager, Mesh, Object3D } from "three";
+import { LoadingManager } from "three";
 import { DRACOLoader, GLTF, GLTFLoader } from "three/examples/jsm/Addons.js";
 
 interface GLTFBinaryLoaderProps {
@@ -35,7 +36,7 @@ const GLTFBinaryLoader: FC<GLTFBinaryLoaderProps> = ({
   useEffect(() => {
     const loadModel = async () => {
       try {
-        const model = await loader.loadAsync(glbFile, (e) => {
+        const model = await loader.loadAsync(glbFile, () => {
           console.log("loading");
         });
         setGltf(model);

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect } from "react";
 import { AmbientLight, Color } from "three";
 

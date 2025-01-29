@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useMemo } from "react";
 import { LoadingManager, Object3D, ObjectLoader } from "three";
 
@@ -20,7 +21,7 @@ const ObjLoader: FC<ObjLoaderProps> = ({
   useEffect(() => {
     const loadModel = async () => {
       try {
-        const model = await loader.loadAsync(objFile, (e) => {
+        const model = await loader.loadAsync(objFile, () => {
           console.log("loading");
         });
 

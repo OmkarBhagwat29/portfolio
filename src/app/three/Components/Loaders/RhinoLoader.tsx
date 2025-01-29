@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useMemo } from "react";
 import { LoadingManager, Object3D } from "three";
 import { Rhino3dmLoader } from "three/examples/jsm/Addons.js";
@@ -23,7 +24,7 @@ const RhinoLoader: FC<RhinoLoaderProps> = ({
   useEffect(() => {
     const loadModel = async () => {
       try {
-        const model = await loader.loadAsync(rhinoFile, (e) => {
+        const model = await loader.loadAsync(rhinoFile, () => {
           console.log("loading");
         });
         setModel(model);
