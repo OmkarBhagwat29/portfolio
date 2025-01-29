@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Config } from "tailwindcss";
 
 export default {
@@ -15,7 +16,8 @@ export default {
     },
   },
   plugins: [
-    function ({ addUtilities }) {
+    function (pluginApi: any) {
+      const { addUtilities } = pluginApi;
       const newUtilities = {
         ".no-scrollbar::-webkit-scrollbar": {
           display: "none",
