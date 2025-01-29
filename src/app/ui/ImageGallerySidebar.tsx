@@ -18,7 +18,7 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const autoScrollTimeout = useRef<NodeJS.Timeout>(null);
+  const autoScrollTimeout = useRef<number | null>(null);
 
   // 1. Auto-scroll animation on load
   useEffect(() => {
