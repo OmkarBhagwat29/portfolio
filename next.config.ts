@@ -13,11 +13,11 @@ const nextConfig: NextConfig = {
   // Redirect configuration (if you still need this)
   async redirects() {
     return [
-      {
-        source: "/",
-        destination: "/portfolio/kia",
-        permanent: false,
-      },
+      // {
+      //   source: "/",
+      //   destination: "/portfolio/kia",
+      //   permanent: false,
+      // },
     ];
   },
 };
