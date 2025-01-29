@@ -20,43 +20,6 @@ export const getLastParentOfObject = (object: Object3D): Object3D => {
   return currentParent;
 };
 
-export const setEmissive = (mesh: Mesh, hexString: string) => {
-  if (mesh.material.length) {
-    mesh.material.forEach((mat) => mat.emissive.setHex(hexString));
-  } else {
-    mesh.material.emissive.setHex(hexString);
-  }
-};
-
-export const setObjectEmissive = (obj: Object3D, hexString: string) => {
-  obj.children.forEach((child) => {
-    setObjectEmissive(child, hexString);
-  });
-  if (obj instanceof Mesh) {
-    setEmissive(obj, hexString);
-    return;
-  }
-};
-
-export const setColor = (object: Object3D, hexString: string) => {
-  if (!object.material) return;
-
-  if (object.material.length) {
-    object.material.forEach((mat) => mat.color.setHex(hexString));
-  } else {
-    object.material.color.setHex(hexString);
-  }
-};
-
-export const setObjectColor = (obj: Object3D, hexString: string) => {
-  // obj.children.forEach((child) => {
-  //   setObjectColor(child, hexString);
-  // });
-
-  setColor(obj, hexString);
-  return;
-};
-
 export const createLineWrapper = (start: Vector3, end: Vector3): Mesh => {
   const direction = new Vector3().subVectors(end, start);
   const length = direction.length();
@@ -130,14 +93,6 @@ export const createGeometryEdges = (
   const edgeLines = new LineSegments(edges, edgesMaterial);
 
   return edgeLines;
-};
-
-export const removeGeometryEdgesFromChildren = (mesh: Mesh) => {
-  mesh.children = mesh.children.filter((c) => {
-    if (c.geometry.type === "EdgesGeometry") {
-      return false;
-    }
-  });
 };
 
 export const getCenteroid = (vecs: Vector3[]): Vector3 => {
