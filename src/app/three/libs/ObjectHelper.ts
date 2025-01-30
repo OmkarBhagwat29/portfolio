@@ -5,11 +5,13 @@ import {
   EdgesGeometry,
   LineBasicMaterial,
   LineSegments,
+  Material,
   Mesh,
   MeshBasicMaterial,
   Object3D,
   Vector3,
 } from "three";
+import { BufferGeometryUtils } from "three/examples/jsm/Addons";
 
 export const getLastParentOfObject = (object: Object3D): Object3D => {
   let currentParent = object;
@@ -109,4 +111,16 @@ export const getCenteroid = (vecs: Vector3[]): Vector3 => {
   center.z /= vecs.length;
 
   return center;
+};
+
+export const mergeMeshes = (meshes: Mesh[], material: Material): Mesh => {
+  const geoms = meshes.map((m) => m.geometry);
+
+  const mergedGeom = BufferGeometryUtils.mergeGeometries(geoms);
+
+  mergedGeom.computeBoundingBox();
+
+  const mesh = new Mesh(mergedGeom, material);
+
+  return mesh;
 };

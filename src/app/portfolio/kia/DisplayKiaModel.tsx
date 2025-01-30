@@ -3,11 +3,16 @@
 import { useKiaContext } from "@/app/context/kia/KiaContext";
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
+  AxesHelper,
+  BoxGeometry,
   BufferGeometry,
   DirectionalLight,
+  DoubleSide,
   HemisphereLight,
   Mesh,
+  MeshBasicMaterial,
   Object3D,
+  SphereGeometry,
   SRGBColorSpace,
   Vector3,
 } from "three";
@@ -15,16 +20,12 @@ import React, { useEffect, useState } from "react";
 import { AmbientLight } from "three";
 import AddDirectionalLight from "@/app/three/Components/Lights/AddDirectionalLight";
 
-import { ChunkedLoader } from "@/app/three/libs/ChunkLoader";
-
-import { adjustMeshPosition } from "@/app/three/libs/ObjectHelper";
 import {
   acceleratedRaycast,
   computeBoundsTree,
   disposeBoundsTree,
-  MeshBVH,
-  SAH,
 } from "three-mesh-bvh";
+import { loadKiaModels } from "./KiaHelper";
 
 //add BVH extension three.js
 
@@ -70,102 +71,19 @@ const DisplayKiaModel = () => {
   useEffect(() => {
     if (sm?.scene) {
       const loadModel = async () => {
-        const chunkLowUrls = [
-          //panelModel,
-          "/models/glb/kia/low-details/kia_1.glb",
+        const { lowDetailModel, highDetailModel } = await loadKiaModels();
 
-          "/models/glb/kia/low-details/kia_2.glb",
+        sm.lod.addLevel(lowDetailModel, 35);
 
-          "/models/glb/kia/low-details/kia_3.glb",
-        ];
+        sm.lod.addLevel(highDetailModel, 10);
 
-        const chunkHightUrls = [
-          "/models/glb/kia/high-details/kia_1.glb",
-          "/models/glb/kia/high-details/kia_2.glb",
-          "/models/glb/kia/high-details/kia_3.glb",
-        ];
+        sm.scene.add(sm.lod);
 
-        const processMesh = (mesh: Mesh) => {
-          const originalScale = mesh.scale.clone();
+        setModel(lowDetailModel);
 
-          mesh.frustumCulled = true;
-          mesh.castShadow = false;
-          mesh.receiveShadow = false;
+        // console.log(highDetailModel);
 
-          mesh.geometry.scale(
-            0.00005 / originalScale.x,
-            0.00005 / originalScale.y,
-            0.00005 / originalScale.z
-          );
-
-          mesh.scale.set(1, 1, 1);
-
-          adjustMeshPosition(mesh);
-
-        };
-
-        const loader = new ChunkedLoader();
-
-        const lowLevelDetails: Object3D = new Object3D();
-        const highLevelDetails: Object3D = new Object3D();
-
-        const lowChunks = await loader.loadModelChunks(
-          chunkLowUrls,
-          (progress) => {
-            console.log(`Loading progress: ${Math.round(progress * 100)}%`);
-          }
-        );
-
-        lowChunks.forEach((chunk) => {
-          // console.log(chunk);
-          const model = chunk.scene;
-          model.traverse((msh) => {
-            if (msh instanceof Mesh) {
-              processMesh(msh);
-
-              console.log("adding low details");
-
-              lowLevelDetails.add(msh.clone());
-            }
-          });
-        });
-
-        sm.lod.addLevel(lowLevelDetails, 35);
-        let veriticesCount = 0;
-        loader
-          .loadModelChunks(chunkHightUrls, (progress) => {
-            console.log(
-              console.log(`Loading progress: ${Math.round(progress * 100)}%`)
-            );
-          })
-          .then((gltfs) => {
-            gltfs.forEach((gltf) => {
-              const model = gltf.scene;
-
-              model.traverse((obj) => {
-                if (obj instanceof Mesh) {
-                  processMesh(obj);
-                  highLevelDetails.add(obj.clone());
-
-                  veriticesCount += obj.geometry.attributes.position.count;
-                }
-              });
-            });
-
-            console.log(veriticesCount);
-            console.log("adding High detailed model to scene *********");
-            sm.lod.addLevel(highLevelDetails, 10);
-          });
-
-        console.log(highLevelDetails);
-
-        const currentLevelId = sm.lod.getCurrentLevel();
-
-        const level = sm.lod.levels[currentLevelId];
-
-        if (level && level.object) {
-          setModel(level.object);
-        }
+        sm.scene.add(new AxesHelper(5));
       };
 
       loadModel();
