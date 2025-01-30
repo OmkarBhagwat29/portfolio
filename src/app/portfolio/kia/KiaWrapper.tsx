@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import DisplayKiaModel from "./DisplayKiaModel";
 import ImageGallerySidebar from "@/app/ui/ImageGallerySidebar";
 import { useKiaContext } from "@/app/context/kia/KiaContext";
+import KiaInfoSlide from "./KiaInfoSlide";
 
 const KiaWrapper = ({ imageNames }: { imageNames: string[] }) => {
   const { model, sm } = useKiaContext();
@@ -39,6 +40,8 @@ const KiaWrapper = ({ imageNames }: { imageNames: string[] }) => {
             images={imageNames}
             imageFolderPath="images/kia"
           />
+
+          <KiaInfoSlide />
         </>
       }
     </>

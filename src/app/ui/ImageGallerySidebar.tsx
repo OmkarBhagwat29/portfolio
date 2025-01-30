@@ -128,7 +128,7 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
   // Modal component
   const ImageModal = () => {
     if (!selectedImage) return null;
-    console.log(selectedImage);
+    //console.log(selectedImage);
     return (
       <>
         <div

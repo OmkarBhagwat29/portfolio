@@ -3,6 +3,7 @@
 import { useKiaContext } from "@/app/context/kia/KiaContext";
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
+  BufferGeometry,
   DirectionalLight,
   HemisphereLight,
   Mesh,
@@ -17,7 +18,19 @@ import AddDirectionalLight from "@/app/three/Components/Lights/AddDirectionalLig
 import { ChunkedLoader } from "@/app/three/libs/ChunkLoader";
 
 import { adjustMeshPosition } from "@/app/three/libs/ObjectHelper";
+import {
+  acceleratedRaycast,
+  computeBoundsTree,
+  disposeBoundsTree,
+  MeshBVH,
+  SAH,
+} from "three-mesh-bvh";
 
+//add BVH extension three.js
+
+BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+Mesh.prototype.raycast = acceleratedRaycast;
 
 const DisplayKiaModel = () => {
   const { sm, setModel } = useKiaContext();
@@ -51,12 +64,6 @@ const DisplayKiaModel = () => {
 
       sm!.controls.minDistance = 0.1;
       sm!.controls.maxDistance = 100;
-
-      //helpers
-      //const dirHelper = new DirectionalLightHelper(dirLight, 5);
-
-      //sm?.scene.add(dirHelper);
-      //sm?.scene.add(topHelper);
     }
   }, [sm, ambLight, dirLight]);
 
@@ -67,24 +74,28 @@ const DisplayKiaModel = () => {
           //panelModel,
           "/models/glb/kia/low-details/kia_1.glb",
 
-          "/models/glb/kia/low-details/transition.glb",
+          "/models/glb/kia/low-details/kia_2.glb",
 
           "/models/glb/kia/low-details/kia_3.glb",
+
+          //"/models/glb/kia/low-details/transition.glb",
         ];
 
         const chunkHightUrls = [
           "/models/glb/kia/high-details/kia_1.glb",
-          "/models/glb/kia/high-details/transition.glb",
+          "/models/glb/kia/high-details/kia_2.glb",
           "/models/glb/kia/high-details/kia_3.glb",
+
+          // "/models/glb/kia/high-details/transition.glb",
         ];
 
         const processMesh = (mesh: Mesh) => {
           const originalScale = mesh.scale.clone();
-          //console.log("orginal scale", originalScale);
-          mesh.frustumCulled = false;
+
+          mesh.frustumCulled = true;
           mesh.castShadow = false;
           mesh.receiveShadow = false;
-          //mesh.geometry = BufferGeometryUtils.mergeVertices(mesh.geometry);
+
           mesh.geometry.scale(
             0.00005 / originalScale.x,
             0.00005 / originalScale.y,
@@ -94,6 +105,19 @@ const DisplayKiaModel = () => {
           mesh.scale.set(1, 1, 1);
 
           adjustMeshPosition(mesh);
+
+          // mesh.geometry.boundsTree = new MeshBVH(mesh.geometry, {
+          //   strategy: SAH,
+          //   maxLeafTris: 10,
+          //   maxDepth: 40,
+          //   setBoundingBox: true,
+          // });
+          // mesh.geometry.computeBoundsTree({
+          //   strategy: SAH,
+          //   maxLeafTris: 10,
+          //   maxDepth: 40,
+          //   setBoundingBox: true,
+          // });
         };
 
         const loader = new ChunkedLoader();
@@ -123,7 +147,7 @@ const DisplayKiaModel = () => {
         });
 
         sm.lod.addLevel(lowLevelDetails, 35);
-
+        let veriticesCount = 0;
         loader
           .loadModelChunks(chunkHightUrls, (progress) => {
             console.log(
@@ -138,20 +162,18 @@ const DisplayKiaModel = () => {
                 if (obj instanceof Mesh) {
                   processMesh(obj);
                   highLevelDetails.add(obj.clone());
+
+                  veriticesCount += obj.geometry.attributes.position.count;
                 }
               });
             });
-            console.log("adding High detailed model to scene *********");
-            sm.lod.addLevel(highLevelDetails, 5);
-          });
-        //const mergedGeom =
-        //  BufferGeometryUtils.mergeGeometries(geometriesToMerge);
 
-        // const mergedMesh = new Mesh(mergedGeom, material);
+            console.log(veriticesCount);
+            console.log("adding High detailed model to scene *********");
+            sm.lod.addLevel(highLevelDetails, 10);
+          });
 
         console.log(highLevelDetails);
-
-        // sm.lod.addLevel(highLevelDetails, 5);
 
         const currentLevelId = sm.lod.getCurrentLevel();
 
@@ -164,6 +186,20 @@ const DisplayKiaModel = () => {
 
       loadModel();
     }
+
+    return () => {
+      if (sm && sm.scene) {
+        sm.lod.levels.forEach((l) => {
+          l.object.children.forEach((c) => {
+            if (c instanceof Mesh && c.geometry.disposeBoundsTree) {
+              c.geometry.disposeBoundsTree();
+              c.geometry.dispose();
+              console.log("dispositng");
+            }
+          });
+        });
+      }
+    };
   }, [sm?.scene]);
 
   return (
