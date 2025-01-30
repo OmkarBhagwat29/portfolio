@@ -3,15 +3,12 @@ import { KiaContext } from "@/app/context/kia/KiaContext";
 
 import Viewer from "@/app/three/Components/Viewer";
 import SceneManager from "@/app/three/SceneManager";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Object3D } from "three";
 import KiaWrapper from "./KiaWrapper";
 
-interface KiaProps {
-  imageNames: string[];
-}
-
-const Kia: FC<KiaProps> = ({ imageNames }) => {
+const Kia = () => {
+  const [imageNames, setImageNames] = useState<string[]>([]);
   const [sm, setSm] = useState<SceneManager | undefined>(undefined);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -25,10 +22,19 @@ const Kia: FC<KiaProps> = ({ imageNames }) => {
     }
   }, [canvasRef]);
 
+  useEffect(() => {
+    // Fetch image names if not passed as props
+
+      fetch("/api/images")
+        .then((res) => res.json())
+        .then((data) => setImageNames(data))
+        .catch((error) => console.error("Failed to fetch images", error));
+
+  }, []);
+
   return (
     <>
       <Viewer ref={canvasRef} />
-
       <KiaContext value={{ sm: sm, setSceneManager: setSm, model, setModel }}>
         <KiaWrapper imageNames={imageNames} />
       </KiaContext>

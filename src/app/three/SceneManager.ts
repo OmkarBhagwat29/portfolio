@@ -55,8 +55,6 @@ class SceneManager {
     this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.enableDamping = false;
 
-    //this.scene.add(new AxesHelper(3));
-
     this.animate();
 
     window.addEventListener("resize", this.onWindowResize);
