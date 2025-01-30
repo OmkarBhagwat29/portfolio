@@ -25,11 +25,10 @@ const Kia = () => {
   useEffect(() => {
     // Fetch image names if not passed as props
 
-      fetch("/api/images")
-        .then((res) => res.json())
-        .then((data) => setImageNames(data))
-        .catch((error) => console.error("Failed to fetch images", error));
-
+    fetch("/api/images")
+      .then((res) => res.json())
+      .then((data) => setImageNames(data))
+      .catch((error) => console.error("Failed to fetch images", error));
   }, []);
 
   return (

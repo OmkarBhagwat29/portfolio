@@ -1,6 +1,5 @@
-"use client";
 import React from "react";
-import Kia from "./Kia";
+import Kia from "./KiaComponent";
 
 const page = () => {
   return (
