@@ -77,16 +77,12 @@ const DisplayKiaModel = () => {
           "/models/glb/kia/low-details/kia_2.glb",
 
           "/models/glb/kia/low-details/kia_3.glb",
-
-          //"/models/glb/kia/low-details/transition.glb",
         ];
 
         const chunkHightUrls = [
           "/models/glb/kia/high-details/kia_1.glb",
           "/models/glb/kia/high-details/kia_2.glb",
           "/models/glb/kia/high-details/kia_3.glb",
-
-          // "/models/glb/kia/high-details/transition.glb",
         ];
 
         const processMesh = (mesh: Mesh) => {
@@ -106,18 +102,6 @@ const DisplayKiaModel = () => {
 
           adjustMeshPosition(mesh);
 
-          // mesh.geometry.boundsTree = new MeshBVH(mesh.geometry, {
-          //   strategy: SAH,
-          //   maxLeafTris: 10,
-          //   maxDepth: 40,
-          //   setBoundingBox: true,
-          // });
-          // mesh.geometry.computeBoundsTree({
-          //   strategy: SAH,
-          //   maxLeafTris: 10,
-          //   maxDepth: 40,
-          //   setBoundingBox: true,
-          // });
         };
 
         const loader = new ChunkedLoader();
