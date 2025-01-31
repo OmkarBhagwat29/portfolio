@@ -82,7 +82,7 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
   }, []);
 
   const handleNextImage = useCallback(() => {
-    console.log("handleNextImage is caleld");
+    //console.log("handleNextImage is caleld");
     let nextIndex = selectedIndex + 1;
     if (nextIndex === images.length) {
       nextIndex = 0;
@@ -93,7 +93,7 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
   }, [imageFolderPath, images, selectedIndex]);
 
   const handlePreviousImage = useCallback(() => {
-    console.log("handlePreviousImage is caleld");
+    //console.log("handlePreviousImage is caleld");
     let previousIndex = selectedIndex - 1;
 
     if (previousIndex < 0) {
@@ -159,12 +159,12 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
           </div>
 
           <FiX
-            className="absolute w-8 h-8 top-28 right-32 hover:bg-red-600 cursor-pointer"
+            className="bg-white rounded-full absolute w-8 h-8 top-28 right-32 hover:bg-red-600 cursor-pointer"
             onClick={closeModal}
           />
 
           <LuCircleChevronRight
-            className="absolute w-8 h-8 top-1/2 right-32 hover:bg-blue-300 cursor-pointer"
+            className="bg-white rounded-full absolute p-1 w-8 h-8 top-1/2 right-32 hover:bg-red-600 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               handleNextImage();
@@ -172,7 +172,7 @@ const ImageGallerySidebar: React.FC<ImageGallerySidebarProps> = ({
           />
 
           <LuCircleChevronLeft
-            className="absolute w-8 h-8 top-1/2 left-32 hover:bg-blue-300 cursor-pointer"
+            className="bg-white rounded-full p-1 absolute w-8 h-8 top-1/2 left-32 hover:bg-red-600 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
 

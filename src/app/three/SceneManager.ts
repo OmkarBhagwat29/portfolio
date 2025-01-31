@@ -1,9 +1,7 @@
 import {
   Color,
   LOD,
-  Mesh,
   PerspectiveCamera,
-  Raycaster,
   Scene,
   SRGBColorSpace,
   WebGLRenderer,
@@ -72,21 +70,6 @@ class SceneManager {
 
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
-  };
-
-  raycaster = new Raycaster();
-  private checkOcclusion = () => {
-    this.scene.traverse((obj) => {
-      if (obj instanceof Mesh && obj.geometry.boundsTree) {
-        this.raycaster.ray.origin.copy(this.camera.position);
-        this.raycaster.ray.direction
-          .subVectors(obj.position, this.camera.position)
-          .normalize();
-
-        const hits = obj.geometry.boundsTree.intersectRay(this.raycaster.ray);
-        obj.visible = hits.length === 0; // Hide if occluded
-      }
-    });
   };
 
   private animate = () => {

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import DisplayKiaModel from "./DisplayKiaModel";
 import ImageGallerySidebar from "@/app/ui/ImageGallerySidebar";
 import { useKiaContext } from "@/app/context/kia/KiaContext";
@@ -13,11 +13,7 @@ const KiaWrapper = ({ imageNames }: { imageNames: string[] }) => {
   useEffect(() => {
     if (model) {
       const animateModel = () => {
-        const levelId = sm!.lod.getCurrentLevel();
-        if (levelId === 1) {
-          sm!.lod.rotation.y += 0.001;
-        }
-
+        sm!.lod.rotation.y += 0.003;
         requestAnimationFrame(animateModel);
       };
 
@@ -33,7 +29,10 @@ const KiaWrapper = ({ imageNames }: { imageNames: string[] }) => {
   }, [model]);
   return (
     <>
-      <DisplayKiaModel />
+      <Suspense>
+        <DisplayKiaModel />
+      </Suspense>
+
       {
         <>
           <ImageGallerySidebar

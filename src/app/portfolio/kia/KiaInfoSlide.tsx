@@ -1,12 +1,8 @@
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { LuChevronDown } from "react-icons/lu";
 
 const KiaInfoSlide = () => {
-  const panelRef = useRef<HTMLDivElement | null>(null);
-
-  const handleRef = useRef<HTMLElement | null>(null);
-
   const [isShowing, setIsShowing] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -20,13 +16,13 @@ const KiaInfoSlide = () => {
     <>
       {/* Sliding Panel with Smooth Transition */}
       <div
-        className={`absolute w-full h-screen bg-white/75 flex justify-center items-center select-none transition-opacity duration-700 ${
+        className={`absolute w-full h-screen bg-white/85 flex justify-center items-center select-none transition-opacity duration-700 ${
           isShowing ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
       >
         <div className="relative w-[90%] h-[90%] p-5">
           <Image
-            src={`/images/kia/kia_info.png`}
+            src={`/images/kia/info/kia_info.png`}
             alt="nothing to show"
             fill
             className="object-contain"

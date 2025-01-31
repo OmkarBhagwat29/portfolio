@@ -4,15 +4,11 @@ import { useKiaContext } from "@/app/context/kia/KiaContext";
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
   AxesHelper,
-  BoxGeometry,
   BufferGeometry,
   DirectionalLight,
-  DoubleSide,
   HemisphereLight,
+  MathUtils,
   Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  SphereGeometry,
   SRGBColorSpace,
   Vector3,
 } from "three";
@@ -26,6 +22,7 @@ import {
   disposeBoundsTree,
 } from "three-mesh-bvh";
 import { loadKiaModels } from "./KiaHelper";
+import { Sky } from "three/examples/jsm/Addons";
 
 //add BVH extension three.js
 
@@ -34,13 +31,15 @@ BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
 
 const DisplayKiaModel = () => {
-  const { sm, setModel } = useKiaContext();
+  const { sm, model, setModel } = useKiaContext();
 
   const [ambLight, setAmbLight] = useState<AmbientLight | undefined>(undefined);
 
   const [dirLight, setDirLight] = useState<DirectionalLight | undefined>(
     undefined
   );
+
+  const [loadingStatus, setLoadingStatus] = useState("0%");
 
   //setup loop
   useEffect(() => {
@@ -65,13 +64,32 @@ const DisplayKiaModel = () => {
 
       sm!.controls.minDistance = 0.1;
       sm!.controls.maxDistance = 100;
+
+      const sky = new Sky();
+      sky.scale.setScalar(450000);
+      sm.scene.add(sky);
+
+      const skyUniforms = sky.material.uniforms;
+      skyUniforms["turbidity"].value = 1;
+      skyUniforms["rayleigh"].value = 0.08;
+      skyUniforms["mieCoefficient"].value = 0.003;
+      skyUniforms["mieDirectionalG"].value = 0.7;
+
+      // Set sun position for evening lighting
+      const sun = new Vector3();
+      const phi = MathUtils.degToRad(90 - 10); // Low sun angle
+      const theta = MathUtils.degToRad(180);
+      sun.setFromSphericalCoords(1, phi, theta);
+      skyUniforms["sunPosition"].value.copy(sun);
     }
   }, [sm, ambLight, dirLight]);
 
   useEffect(() => {
     if (sm?.scene) {
       const loadModel = async () => {
-        const { lowDetailModel, highDetailModel } = await loadKiaModels();
+        const { lowDetailModel, highDetailModel } = await loadKiaModels(
+          setLoadingStatus
+        );
 
         sm.lod.addLevel(lowDetailModel, 35);
 
@@ -81,14 +99,10 @@ const DisplayKiaModel = () => {
 
         setModel(lowDetailModel);
 
-        // console.log(highDetailModel);
-
-        sm.scene.add(new AxesHelper(5));
+        //sm.scene.add(new AxesHelper(5));
       };
 
       loadModel();
-
-  
     }
 
     return () => {
@@ -98,7 +112,6 @@ const DisplayKiaModel = () => {
             if (c instanceof Mesh && c.geometry.disposeBoundsTree) {
               c.geometry.disposeBoundsTree();
               c.geometry.dispose();
-              console.log("dispositng");
             }
           });
         });
@@ -108,21 +121,21 @@ const DisplayKiaModel = () => {
 
   return (
     <>
-      <AddAmbientLight color="white" intensity={15} setLight={setAmbLight} />
+      <AddAmbientLight color="white" intensity={0.05} setLight={setAmbLight} />
 
       <AddDirectionalLight
         color="white"
-        intensity={10}
+        intensity={0.025}
         setLight={setDirLight}
         position={new Vector3(5, 5, 5)}
       />
 
-      {/* <AddDirectionalLight
-        color="white"
-        intensity={5}
-        setLight={setTopLight}
-        position={new Vector3(0, 20, 0)}
-      /> */}
+      {!model && (
+        <div className="select-none text-lg absolute bg-white/90 rounded-full p-5 flex-col top-1/2 left-[47%]">
+          <div>Model</div>
+          <div>Loading...{loadingStatus}</div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,8 +1,10 @@
 import { ChunkedLoader } from "@/app/three/libs/ChunkLoader";
-import { adjustMeshPosition, mergeMeshes } from "@/app/three/libs/ObjectHelper";
+import { mergeMeshes } from "@/app/three/libs/ObjectHelper";
 import { Material, Mesh, Object3D } from "three";
 
-export const loadKiaModels = async (): Promise<{
+export const loadKiaModels = async (
+  setLoadingStatus: (status: string) => void
+): Promise<{
   lowDetailModel: Object3D;
   highDetailModel: Object3D;
 }> => {
@@ -42,8 +44,8 @@ export const loadKiaModels = async (): Promise<{
   const lowLevelDetails: Object3D = new Object3D();
   const highLevelDetails: Object3D = new Object3D();
 
-  const lowChunks = await loader.loadModelChunks(chunkLowUrls, (progress) => {
-    console.log(`Loading progress: ${Math.round(progress * 100)}%`);
+  const lowChunks = await loader.loadModelChunks(chunkLowUrls, () => {
+    // console.log(`Loading progress: ${Math.round(progress * 100)}%`);
   });
 
   lowChunks.forEach((chunk) => {
@@ -53,7 +55,7 @@ export const loadKiaModels = async (): Promise<{
       if (msh instanceof Mesh) {
         processMesh(msh);
 
-        console.log("adding low details");
+        //console.log("adding low details");
 
         lowLevelDetails.add(msh.clone());
       }
@@ -61,11 +63,13 @@ export const loadKiaModels = async (): Promise<{
   });
 
   //sm.lod.addLevel(lowLevelDetails, 35);
-  let veriticesCount = 0;
+  // let veriticesCount = 0;
   const hgihChunks = await loader.loadModelChunks(
     chunkHightUrls,
     (progress) => {
-      console.log(`Loading progress: ${Math.round(progress * 100)}%`);
+      //console.log(`Loading progress: ${Math.round(progress * 100)}%`);
+
+      setLoadingStatus(` ${Math.round(progress * 100)}%`);
     }
   );
 
@@ -81,7 +85,7 @@ export const loadKiaModels = async (): Promise<{
 
         // highLevelDetails.add(obj.clone());
 
-        veriticesCount += obj.geometry.attributes.position.count;
+        //veriticesCount += obj.geometry.attributes.position.count;
       }
     });
 
@@ -94,17 +98,7 @@ export const loadKiaModels = async (): Promise<{
     } else {
       highLevelDetails.add(...meshes);
     }
-
-    console.log(veriticesCount);
-    console.log("adding High detailed model to scene *********");
-    // sm.lod.addLevel(highLevelDetails, 10);
   });
 
-  // console.log(highLevelDetails);
-
   return { lowDetailModel: lowLevelDetails, highDetailModel: highLevelDetails };
-
-  //   const currentLevelId = sm.lod.getCurrentLevel();
-
-  //   const level = sm.lod.levels[currentLevelId];
 };
