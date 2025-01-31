@@ -87,6 +87,8 @@ const DisplayKiaModel = () => {
       };
 
       loadModel();
+
+  
     }
 
     return () => {
