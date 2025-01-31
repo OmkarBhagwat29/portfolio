@@ -17,7 +17,6 @@ const Kia = () => {
   useEffect(() => {
     if (canvasRef.current) {
       const sm = SceneManager.getInstance(canvasRef.current);
-
       setSm(sm);
     }
   }, [canvasRef]);
