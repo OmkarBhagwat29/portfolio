@@ -1,5 +1,5 @@
 import React from "react";
-import CanvasColorModal from "./CanvasColorModal";
+import CanvasColorModal from "./components/CanvasColorModal";
 
 const Ui = () => {
   return (

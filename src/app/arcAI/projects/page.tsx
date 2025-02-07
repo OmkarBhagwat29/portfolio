@@ -1,7 +1,8 @@
 import React from "react";
+import RenderProjects from "./RenderProjects";
 
 const page = () => {
-  return <div>Hello from Projects</div>;
+  return <RenderProjects />;
 };
 
 export default page;
