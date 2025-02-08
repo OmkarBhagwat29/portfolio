@@ -1,12 +1,8 @@
 import React from "react";
-import Kia from "./Kia";
+import Hss from "./Hss";
 
 const page = () => {
-  return (
-    <>
-      <Kia />
-    </>
-  );
+  return <Hss />;
 };
 
 export default page;

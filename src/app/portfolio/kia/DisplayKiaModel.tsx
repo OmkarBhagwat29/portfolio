@@ -3,7 +3,6 @@
 
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
-  AxesHelper,
   BufferGeometry,
   DirectionalLight,
   HemisphereLight,

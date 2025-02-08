@@ -1,9 +1,7 @@
 // next.config.ts
 import type { NextConfig } from "next";
 
-
 const nextConfig: NextConfig = {
-
   images: { unoptimized: true },
 
   // Redirect configuration (if you still need this)
@@ -11,7 +9,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        destination: "/portfolio/kia",
+        destination: "/portfolio/hss",
         permanent: false,
       },
     ];

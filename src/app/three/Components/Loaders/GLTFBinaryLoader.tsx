@@ -1,54 +1,64 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useEffect, useMemo } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { LoadingManager } from "three";
 import { DRACOLoader, GLTF, GLTFLoader } from "three/examples/jsm/Addons.js";
 
 interface GLTFBinaryLoaderProps {
   loadingManager?: LoadingManager;
   glbFile: string;
-  setGltf: (object: GLTF) => void;
   useDraco: boolean;
+  model: GLTF | undefined;
+  setModel: (gltf: GLTF) => void;
 }
 
-const GLTFBinaryLoader: FC<GLTFBinaryLoaderProps> = ({
-  loadingManager,
-  glbFile,
-  setGltf,
-  useDraco,
-}) => {
-  const loader = useMemo(() => {
-    const loader = new GLTFLoader(loadingManager);
+const GLTFBinaryLoader = forwardRef<GLTF | undefined, GLTFBinaryLoaderProps>(
+  ({ loadingManager, glbFile, useDraco, setModel, model }, ref) => {
 
-    if (useDraco) {
-      const dracoLoader = new DRACOLoader(loadingManager);
-      dracoLoader.setDecoderPath("/draco/");
+    const loader = useMemo(() => {
+      const loader = new GLTFLoader(loadingManager);
 
-      const cpuCores = navigator.hardwareConcurrency || 4; // Default to 4 if unavailable
-      console.log(`Setting DRACO worker limit to: ${cpuCores}`);
+      if (useDraco) {
+        const dracoLoader = new DRACOLoader(loadingManager);
+        dracoLoader.setDecoderPath("/draco/");
 
-      dracoLoader.setWorkerLimit(cpuCores);
+        const cpuCores = navigator.hardwareConcurrency || 4; // Default to 4 if unavailable
+        console.log(`Setting DRACO worker limit to: ${cpuCores}`);
 
-      loader.setDRACOLoader(dracoLoader);
-    }
-    return loader;
-  }, [loadingManager]);
-
-  useEffect(() => {
-    const loadModel = async () => {
-      try {
-        const model = await loader.loadAsync(glbFile, () => {
-          console.log("loading");
-        });
-        setGltf(model);
-      } catch (error) {
-        throw error;
+        dracoLoader.setWorkerLimit(cpuCores);
+        loader.setDRACOLoader(dracoLoader);
       }
-    };
+      return loader;
+    }, [loadingManager]);
 
-    loadModel();
-  }, [glbFile]);
+    useEffect(() => {
+      const loadModel = async () => {
+        try {
+          const model = await loader.loadAsync(glbFile, () => {
+            console.log("loading");
+          });
 
-  return <></>;
-};
+          setModel(model);
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      loadModel();
+    }, [glbFile]);
+
+    // Expose the model via the ref
+    useImperativeHandle(ref, () => model, [model]);
+
+    return <>{model && <primitive object={model.scene} />}</>;
+  }
+);
+
+GLTFBinaryLoader.displayName = "LoadGltfModel";
 
 export default GLTFBinaryLoader;
