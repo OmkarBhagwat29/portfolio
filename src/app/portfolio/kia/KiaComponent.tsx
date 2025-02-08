@@ -1,11 +1,11 @@
 "use client";
-import { KiaContext } from "@/app/context/kia/KiaContext";
 
 import Viewer from "@/app/three/Components/Viewer";
 import SceneManager from "@/app/three/SceneManager";
 import React, { useEffect, useRef, useState } from "react";
 import { Object3D } from "three";
 import KiaWrapper from "./KiaWrapper";
+import { KiaContext } from "../context/kia/KiaContext";
 
 const Kia = () => {
   const [imageNames, setImageNames] = useState<string[]>([]);

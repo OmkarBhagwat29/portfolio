@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { useKiaContext } from "@/app/context/kia/KiaContext";
+
 import AddAmbientLight from "@/app/three/Components/Lights/AddAmbientLight";
 import {
   AxesHelper,
@@ -23,6 +23,7 @@ import {
 } from "three-mesh-bvh";
 import { loadKiaModels } from "./KiaHelper";
 import { Sky } from "three/examples/jsm/Addons";
+import { useKiaContext } from "../context/kia/KiaContext";
 
 //add BVH extension three.js
 

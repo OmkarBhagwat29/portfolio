@@ -2,8 +2,8 @@
 import React, { Suspense, useEffect, useState } from "react";
 import DisplayKiaModel from "./DisplayKiaModel";
 import ImageGallerySidebar from "@/app/ui/ImageGallerySidebar";
-import { useKiaContext } from "@/app/context/kia/KiaContext";
 import KiaInfoSlide from "./KiaInfoSlide";
+import { useKiaContext } from "../context/kia/KiaContext";
 
 const KiaWrapper = ({ imageNames }: { imageNames: string[] }) => {
   const { model, sm } = useKiaContext();
