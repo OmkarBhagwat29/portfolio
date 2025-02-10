@@ -1,22 +1,22 @@
 import { IconType } from "react-icons";
 import { TbLine, TbPointFilled } from "react-icons/tb";
 
-interface DrawCommand {
-  type: DrawType;
+interface DrawProps {
+  command: DrawCommand;
   component?: React.ElementType;
   icon?: IconType;
-  children?: DrawCommand[];
+  children?: DrawProps[];
 }
 
-export type DrawType = "line" | "point";
+export type DrawCommand = "line" | "point" | "none";
 
-export const getDrawCommands: DrawCommand[] = [
+export const getDrawData: DrawProps[] = [
   {
-    type: "point",
+    command: "point",
     icon: TbPointFilled,
   },
   {
-    type: "line",
+    command: "line",
     icon: TbLine,
   },
 ];

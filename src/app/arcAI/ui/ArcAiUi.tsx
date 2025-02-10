@@ -1,12 +1,12 @@
 import React from "react";
 import CanvasColorModal from "./components/CanvasColorModal";
-import ToolbarWrapper from "./components/ToolbarWrapper";
+import RenderToolbars from "./components/toolbar/RenderToolbars";
 
 const ArcAiUI = () => {
   return (
     <>
       <CanvasColorModal />
-      <ToolbarWrapper />
+      <RenderToolbars />
     </>
   );
 };

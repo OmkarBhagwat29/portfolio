@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, use, useEffect, useRef, useState } from "react";
+import React, { FC, ReactNode, useEffect, useRef, useState } from "react";
 
 interface ToolbarProps {
   children: ReactNode;
@@ -17,6 +17,8 @@ const Toolbar: FC<ToolbarProps> = ({
 
   const [mouseDown, setMouseDown] = useState(false);
 
+  const [boundingRect, setBoundingRec] = useState<DOMRect | undefined>();
+
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -30,16 +32,28 @@ const Toolbar: FC<ToolbarProps> = ({
 
     if (!mouseDown || !toolbarRef.current) return;
 
-    //  console.log("moving");
-
-    toolbarRef.current.style.left = e.clientX - 5 + "px";
-    toolbarRef.current.style.top = e.clientY - 5 + "px";
+    if (boundingRect) {
+      const newLeft = Math.min(
+        e.clientX,
+        window.innerWidth - boundingRect.width - 5 //5px oofset from screen
+      );
+      const newTop = Math.min(
+        e.clientY,
+        window.innerHeight - boundingRect.height - 5
+      );
+      //some adjustments
+      toolbarRef.current.style.left = `${newLeft - 10}px`;
+      toolbarRef.current.style.top = `${newTop - 10}px`;
+    }
   };
 
   const handleMouseUp = (e: MouseEvent) => {
     e.stopPropagation();
+    const rec = toolbarRef.current?.getBoundingClientRect();
 
-    // console.log("mouse is up");
+    if (rec) {
+      setBoundingRec(rec);
+    }
     setMouseDown(false);
   };
 

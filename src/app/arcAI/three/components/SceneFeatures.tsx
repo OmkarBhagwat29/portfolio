@@ -3,7 +3,7 @@ import { useThree } from "@react-three/fiber";
 import React, { useEffect } from "react";
 import { useCanvasContext } from "../../context/CanvasContext";
 
-const AppFeatures = () => {
+const SceneFeatures = () => {
   const { backgroundColor } = useCanvasContext();
   const { gl } = useThree();
   useEffect(() => {
@@ -19,4 +19,4 @@ const AppFeatures = () => {
   );
 };
 
-export default AppFeatures;
+export default SceneFeatures;
