@@ -4,6 +4,7 @@ import Scene from "@/app/three/Components/Scene/Scene";
 
 import React from "react";
 import AppFeatures from "./AppFeatures";
+import RenderMap from "../map/RenderMap";
 
 const ProjectScene = () => {
   return (
@@ -11,6 +12,7 @@ const ProjectScene = () => {
       <Scene>
         <AppFeatures />
       </Scene>
+      <RenderMap />
     </>
   );
 };

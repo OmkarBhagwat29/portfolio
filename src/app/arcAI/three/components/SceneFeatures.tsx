@@ -15,6 +15,7 @@ const SceneFeatures = () => {
       <axesHelper scale={3} />
       <gridHelper scale={2} />
       <OrbitControls />
+      <ambientLight />
     </>
   );
 };

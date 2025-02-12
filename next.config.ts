@@ -1,5 +1,6 @@
 // next.config.ts
 import type { NextConfig } from "next";
+import { webpack } from "next/dist/compiled/webpack/webpack";
 
 const nextConfig: NextConfig = {
   images: { unoptimized: true },
@@ -13,6 +14,12 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
     ];
+  },
+  reactStrictMode: false,
+  webpack: (config) => {
+    config.plugins.push(
+      new webpack.DefinePlugin({ CESIUM_BASE_URL: JSON.stringify("/cesium") })
+    );
   },
 };
 

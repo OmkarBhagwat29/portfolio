@@ -15,7 +15,7 @@ const ShowToolbar: FC<ShowToolbarpProps> = ({
 }) => {
   return (
     <Toolbar
-      className={`bg-slate-300 absolute ${positionClassNames}  flex ${
+      className={`z-50 bg-slate-300 absolute ${positionClassNames}  flex ${
         isVertical ? "flex-col" : "flex-row"
       } bg-slate-300justify-center items-center shadow-md rounded-md overflow-hidden`}
       toolbarHandle={
