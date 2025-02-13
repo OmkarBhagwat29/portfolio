@@ -1,10 +1,10 @@
 "use client";
-import { signup } from "@/app/actions/auth";
+
 import React from "react";
 
 const SignUpFrom = () => {
   return (
-    <form action={(formData: FormData) => signup(formData)}>
+    <form action={(formData: FormData) => {}}>
       <div>
         <label htmlFor="name">Name</label>
         <input id="name" name="name" placeholder="Name" />

@@ -6,7 +6,7 @@ const AppFeatures = () => {
   return (
     <>
       <SceneFeatures />
-      {/* <DrawFeatures /> */}
+      <DrawFeatures />
     </>
   );
 };

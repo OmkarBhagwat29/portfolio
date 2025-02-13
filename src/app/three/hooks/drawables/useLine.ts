@@ -5,16 +5,26 @@ import {
   Line,
   LineBasicMaterial,
   Object3D,
+  Plane,
   Vector3,
 } from "three";
-import { getPointOnMouseEvent } from "../utils/moseEventHelpers";
-import { Snap } from "@/app/context/Snap";
+import { getPointOnMouseEvent } from "../../utils/moseEventHelpers";
 
-export const useLine = (
-  snap: Snap,
-  color: string = "gray",
-  lineWidth: number = 1
-): Object3D | null => {
+interface UseLineOptions {
+  color?: string;
+  lineWidth?: number;
+  snapFunction?: () => Vector3 | undefined;
+  onDrawing?: () => void;
+  onDrawComplete?: (line: Line) => void;
+}
+
+export const useLine = ({
+  color = "gray",
+  lineWidth = 1,
+  snapFunction,
+  onDrawing,
+  onDrawComplete,
+}: UseLineOptions = {}): Object3D | null => {
   const [line, setLine] = useState<Object3D | null>(null);
 
   const { scene, camera, size, gl } = useThree();
@@ -30,20 +40,19 @@ export const useLine = (
     scene.add(ln);
 
     return ln;
-  }, [color, lineWidth]);
+  }, [color, lineWidth, scene]);
 
   useEffect(() => {
     const startPt = new Vector3();
     const endPt = new Vector3();
 
     const getDynamiceLine = (e: MouseEvent) => {
-      const pt = getPointOnMouseEvent(e, camera, size, snap.snapPlane);
-
-      if (snap.inputPoint) {
-        pt.copy(snap.inputPoint);
-      } else if (snap.snapPoint) {
-        pt.copy(snap.snapPoint);
-      }
+      const pt = getPointOnMouseEvent(
+        e,
+        camera,
+        size,
+        new Plane(new Vector3(0, 1, 0))
+      );
 
       endPt.copy(pt);
 
@@ -83,19 +92,21 @@ export const useLine = (
 
       setLine(line);
 
+      if (onDrawComplete) {
+        onDrawComplete(line);
+      }
       gl.domElement.removeEventListener("mousemove", getDynamiceLine);
       gl.domElement.removeEventListener("click", getEndPoint);
     };
 
     const getStartPoint = (e: MouseEvent) => {
       e.stopPropagation();
-      const pt = getPointOnMouseEvent(e, camera, size, snap.snapPlane);
-
-      if (snap.inputPoint) {
-        pt.copy(snap.inputPoint);
-      } else if (snap.snapPoint) {
-        pt.copy(snap.snapPoint);
-      }
+      const pt = getPointOnMouseEvent(
+        e,
+        camera,
+        size,
+        new Plane(new Vector3(0, 1, 0))
+      );
 
       startPt.copy(pt);
 
@@ -104,6 +115,9 @@ export const useLine = (
       gl.domElement.removeEventListener("click", getStartPoint);
     };
 
+    if (onDrawing) {
+      onDrawing();
+    }
     gl.domElement.addEventListener("click", getStartPoint);
 
     return () => {
@@ -111,7 +125,7 @@ export const useLine = (
       gl.domElement.removeEventListener("mousemove", getDynamiceLine);
       gl.domElement.removeEventListener("click", getEndPoint);
     };
-  }, []);
+  }, [color, lineWidth, scene, camera, gl, ln, size]);
 
   return line;
 };

@@ -9,7 +9,7 @@ const GoToMap = () => {
   return (
     <>
       <button
-        className="z-50 absolute bg-slate-300 rounded-lg hover:bg-slate-200 active:bg-slate-50 cursor-pointer select-none duration-200 transition-colors shadow-md p-2 top-5 right-80 text-sm"
+        className="z-50 absolute bg-slate-300 rounded-lg hover:bg-slate-200 active:bg-slate-50 cursor-pointer select-none duration-200 transition-colors shadow-md p-2 top-5 right-96 text-sm"
         onClick={(e) => {
           e.stopPropagation();
           setLoadMap(!loadMap);

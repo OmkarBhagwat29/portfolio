@@ -1,36 +1,37 @@
-import React, { useEffect, useRef } from "react";
-import { Ion, Viewer as cViewer } from "cesium";
-import { useMapContext } from "../context/MapContext";
+import React from "react";
+import { CesiumTerrainProvider, Ion } from "cesium";
 
-import { CesiumComponentRef, Viewer } from "resium";
+import { Viewer } from "resium";
 
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import JumpToLocation from "./JumpToLocation";
+import ExtractBuildings from "./ExtractMapBuildings";
+import CustomizeOrbit from "./CustomizeOrbit";
 
 const LoadMap = () => {
-  const { loadMap } = useMapContext();
-
-  const viewerRef = useRef<CesiumComponentRef<cViewer> | null>(null);
-
-  useEffect(() => {
-    console.log("map loaded");
-
-    window.CESIUM_BASE_URL = "/cesium";
-    Ion.defaultAccessToken = process.env.NEXT_PUBLIC_MAP_API_KEY;
-    if (viewerRef.current) {
-      console.log(viewerRef.current.cesiumElement);
-    }
-
-    return () => {
-      console.log("map unloaded");
-    };
-  }, []);
+  window.CESIUM_BASE_URL = "/cesium";
+  Ion.defaultAccessToken = process.env.NEXT_PUBLIC_MAP_API_KEY;
 
   return (
     <>
       {
-        <Viewer full>
+        <Viewer
+          terrainProvider={CesiumTerrainProvider.fromIonAssetId(1, {
+            requestVertexNormals: true,
+          })}
+          full
+          homeButton={false}
+          animation={false}
+          timeline={false}
+          navigationInstructionsInitiallyVisible={false}
+          projectionPicker={false}
+          sceneModePicker={false}
+          resolutionScale={0.5}
+          scene3DOnly={true}
+        >
           <JumpToLocation />
+          <ExtractBuildings />
+          <CustomizeOrbit />
         </Viewer>
       }
     </>
