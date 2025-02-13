@@ -1,24 +1,20 @@
-import {
-  addGeometryIds,
-  setDrawStatus,
-} from "@/app/lib/features/draw/drawSlice";
+import { addGeometryIds } from "@/app/lib/features/draw/drawSlice";
 import { useAppDispatch } from "@/app/lib/hooks";
 import { useLine } from "@/app/three/hooks/drawables/useLine";
 import { useThree } from "@react-three/fiber";
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
+import { DrawProps } from "./DrawProps";
 
-const DrawLine = () => {
+const DrawLine: FC<DrawProps> = ({
+  onStart,
+  onDrawing,
+  onDrawComplete,
+  onAbort,
+}) => {
   const dispatch = useAppDispatch();
   const { scene } = useThree();
 
-  const line = useLine({
-    onDrawComplete: () => {
-      dispatch(setDrawStatus("completed"));
-    },
-    onDrawing: () => {
-      dispatch(setDrawStatus("drawing"));
-    },
-  });
+  const line = useLine({ onStart, onDrawing, onDrawComplete, onAbort });
 
   useEffect(() => {
     if (!line) return;
@@ -28,9 +24,7 @@ const DrawLine = () => {
     scene.add(line);
     dispatch(addGeometryIds([line.uuid]));
 
-    return () => {
-      console.log("unmounting draw line");
-    };
+    return () => {};
   }, [line, scene, dispatch]);
 
   return <></>;

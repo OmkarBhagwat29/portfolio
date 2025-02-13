@@ -1,7 +1,8 @@
 import { DrawType } from "@/app/lib/features/draw/DrawType";
 import { IconType } from "react-icons";
 import { TbLine, TbPointFilled } from "react-icons/tb";
-import DrawLine from "../three/Drawables/DrawLine";
+import { DrawLine, DrawPoint } from "../three/Drawables";
+import { MdPolyline } from "react-icons/md";
 
 interface DrawProps {
   command: DrawType;
@@ -14,10 +15,16 @@ export const getDrawData: DrawProps[] = [
   {
     command: "point",
     icon: TbPointFilled,
+    component: DrawPoint,
   },
   {
     command: "line",
     icon: TbLine,
+    component: DrawLine,
+  },
+  {
+    command: "polyline",
+    icon: MdPolyline,
     component: DrawLine,
   },
 ];

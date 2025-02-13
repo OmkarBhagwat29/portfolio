@@ -9,21 +9,16 @@ import {
   Vector3,
 } from "three";
 import { getPointOnMouseEvent } from "../../utils/moseEventHelpers";
-
-interface UseLineOptions {
-  color?: string;
-  lineWidth?: number;
-  snapFunction?: () => Vector3 | undefined;
-  onDrawing?: () => void;
-  onDrawComplete?: (line: Line) => void;
-}
+import { UseLineOptions } from "./UseOptions";
 
 export const useLine = ({
   color = "gray",
   lineWidth = 1,
   snapFunction,
+  onStart,
   onDrawing,
   onDrawComplete,
+  onAbort,
 }: UseLineOptions = {}): Object3D | null => {
   const [line, setLine] = useState<Object3D | null>(null);
 
@@ -53,6 +48,14 @@ export const useLine = ({
         size,
         new Plane(new Vector3(0, 1, 0))
       );
+
+      if (snapFunction) {
+        const snapPt = snapFunction();
+
+        if (snapPt) {
+          pt.copy(snapPt);
+        }
+      }
 
       endPt.copy(pt);
 
@@ -108,24 +111,48 @@ export const useLine = ({
         new Plane(new Vector3(0, 1, 0))
       );
 
+      if (snapFunction) {
+        const snapPt = snapFunction();
+
+        if (snapPt) {
+          pt.copy(snapPt);
+        }
+      }
+
       startPt.copy(pt);
+
+      if (onDrawing) {
+        onDrawing();
+      }
 
       gl.domElement.addEventListener("mousemove", getDynamiceLine);
       gl.domElement.addEventListener("click", getEndPoint);
       gl.domElement.removeEventListener("click", getStartPoint);
     };
 
-    if (onDrawing) {
-      onDrawing();
+    if (onStart) {
+      onStart();
     }
+
+    const handleAbort = (event) => (onAbort ? onAbort(ln) : () => {});
+
     gl.domElement.addEventListener("click", getStartPoint);
+
+    if (onAbort) {
+      document.addEventListener("keydown", handleAbort);
+    }
 
     return () => {
       gl.domElement.removeEventListener("click", getStartPoint);
       gl.domElement.removeEventListener("mousemove", getDynamiceLine);
       gl.domElement.removeEventListener("click", getEndPoint);
+
+      if (onAbort) {
+        console.log("removing abort from line");
+        document.removeEventListener("keydown", handleAbort);
+      }
     };
-  }, [color, lineWidth, scene, camera, gl, ln, size]);
+  }, []);
 
   return line;
 };

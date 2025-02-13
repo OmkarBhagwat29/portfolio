@@ -27,7 +27,6 @@ const DrawCommandToolbar = ({ isVertical }: { isVertical: boolean }) => {
               console.log(`you clicked -> ${c.command}`);
               //dispatch action here
               dispatch(setDrawType(c.command));
-              dispatch(setDrawStatus("started"));
             }}
           >
             <Icon />

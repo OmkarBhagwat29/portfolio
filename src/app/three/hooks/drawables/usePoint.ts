@@ -4,30 +4,37 @@ import {
   BufferAttribute,
   BufferGeometry,
   Object3D,
+  Plane,
   Points,
   PointsMaterial,
   Vector3,
 } from "three";
-import { GetMouseCoordinates, GetViewportCoordinates } from "../utils/utils";
-import { Snap } from "@/app/context/Snap";
 
-export const usePoint = (
-  snap: Snap,
-  color: string = "gray"
-): Object3D | null => {
+import { UsePointOptions } from "./UseOptions";
+import { GetMouseCoordinates, GetViewportCoordinates } from "../../utils/utils";
+
+export const usePoint = ({
+  color = "gray",
+  sizeAttenuation = false,
+  pointSize = 10,
+  snapFunction,
+  onDrawing,
+  onDrawComplete,
+  onAbort,
+}: UsePointOptions = {}): Object3D | null => {
   const [point, setPoint] = useState<Object3D | null>(null);
   const { size, camera, gl } = useThree();
 
   const point_geom = useMemo(() => {
     const point = new Points(
       new BufferGeometry(),
-      new PointsMaterial({ color: color, size: 10, sizeAttenuation: false })
+      new PointsMaterial({ color: color, size: pointSize, sizeAttenuation })
     );
 
     point.frustumCulled = false;
 
     return point;
-  }, [color]);
+  }, [color, pointSize, sizeAttenuation]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -40,12 +47,18 @@ export const usePoint = (
         size.height
       );
 
-      const pt = GetViewportCoordinates(camera, mouse, snap.snapPlane);
+      const pt = GetViewportCoordinates(
+        camera,
+        mouse,
+        new Plane(new Vector3(0, 1, 0))
+      );
 
-      if (snap.inputPoint) {
-        pt.copy(snap.inputPoint);
-      } else if (snap.snapPoint) {
-        pt.copy(snap.snapPoint);
+      if (snapFunction) {
+        const snapPt = snapFunction();
+
+        if (snapPt) {
+          pt.copy(snapPt);
+        }
       }
 
       const positions = new Float32Array([0, 0, 0]);
@@ -59,13 +72,35 @@ export const usePoint = (
 
       point_geom.position.set(pt.x, pt.y, pt.z);
 
-      setPoint(point_geom);
+      const output = point_geom.clone();
+      setPoint(output);
+
+      if (onDrawComplete) {
+        onDrawComplete(output);
+      }
     };
+
+    if (onDrawing) {
+      onDrawing();
+    }
 
     gl.domElement.addEventListener("click", onClick);
 
+    const handleAbort = (event) => (onAbort ? onAbort(point_geom) : () => {});
+
+    if (onAbort) {
+      document.addEventListener("keydown", handleAbort);
+    }
+
     return () => {
+      console.log("unmounting point");
+
       gl.domElement.removeEventListener("click", onClick);
+
+      if (onAbort) {
+        console.log("removing abort from point");
+        document.removeEventListener("keydown", handleAbort);
+      }
     };
   }, []);
 

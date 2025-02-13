@@ -1,4 +1,4 @@
-export type DrawType = undefined | "point" | "line";
+export type DrawType = undefined | "point" | "line" | "polyline";
 
 export type DrawStatus =
   | "started"
