@@ -16,6 +16,7 @@
     "cesium": "^1.126.0",
     "lodash.debounce": "^4.0.8",
     "next": "15.1.6",
+    "opencascade.js": "^2.0.0-beta.b5ff984",
     "react": "^19.0.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^19.0.0",
