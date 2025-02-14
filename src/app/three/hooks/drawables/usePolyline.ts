@@ -6,16 +6,22 @@ import {
   Line,
   LineBasicMaterial,
   Object3D,
+  Plane,
   Vector3,
 } from "three";
-import { getPointOnMouseEvent } from "../utils/moseEventHelpers";
-import { Snap } from "@/app/context/Snap";
+import { UseLineOptions } from "./UseOptions";
+import { getPointOnMouseEvent } from "../../utils/moseEventHelpers";
+import { GetMouseCoordinates, GetViewportCoordinates } from "../../utils/utils";
 
-export const usePolyline = (
-  snap: Snap,
-  color: string = "gray",
-  lineWidth: number = 1
-): Object3D | null => {
+export const usePolyline = ({
+  color = "gray",
+  lineWidth = 1,
+  onSnap,
+  onStart,
+  onDrawing,
+  onDrawComplete,
+  onAbort,
+}: UseLineOptions = {}): Object3D | null => {
   const [pl, setPl] = useState<Object3D | null>(null);
 
   const { camera, scene, size, gl } = useThree();
@@ -34,7 +40,7 @@ export const usePolyline = (
     scene.add(ply);
 
     return ply;
-  }, [color, lineWidth]);
+  }, [color, lineWidth, scene]);
 
   const points = useMemo(() => {
     const pts: Vector3[] = [];
@@ -42,6 +48,8 @@ export const usePolyline = (
   }, []);
 
   useEffect(() => {
+    let snapPoint: Vector3 | undefined = undefined;
+
     const setLinePoints = () => {
       if (points.length === 1) return;
 
@@ -63,14 +71,16 @@ export const usePolyline = (
     const clickPoint = (e: MouseEvent) => {
       e.stopPropagation();
 
+      if (onDrawing) {
+        onDrawing();
+      }
+
       const pt = new Vector3().copy(
-        getPointOnMouseEvent(e, camera, size, snap.snapPlane)
+        getPointOnMouseEvent(e, camera, size, new Plane(new Vector3(0, 1, 0)))
       );
 
-      if (snap.inputPoint) {
-        pt.copy(snap.inputPoint);
-      } else if (snap.snapPoint) {
-        pt.copy(snap.snapPoint);
+      if (snapPoint) {
+        pt.copy(snapPoint);
       }
 
       points.push(pt);
@@ -78,7 +88,7 @@ export const usePolyline = (
     };
 
     const mouseMove = (e: MouseEvent) => {
-      //e.stopPropagation();
+      e.stopPropagation();
 
       if (points.length === 0) return;
 
@@ -86,13 +96,21 @@ export const usePolyline = (
         points.pop();
       }
 
-      const pt = new Vector3();
-      if (snap.inputPoint) {
-        pt.copy(snap.inputPoint);
-      } else if (snap.snapPoint) {
-        pt.copy(snap.snapPoint);
-      } else {
-        pt.copy(getPointOnMouseEvent(e, camera, size, snap.snapPlane));
+      const mouse = GetMouseCoordinates(
+        e.clientX,
+        e.clientY,
+        size.width,
+        size.height
+      );
+
+      const pt = GetViewportCoordinates(
+        camera,
+        mouse,
+        new Plane(new Vector3(0, 1, 0))
+      );
+
+      if (snapPoint) {
+        pt.copy(snapPoint);
       }
 
       points.push(pt.clone());
@@ -151,8 +169,16 @@ export const usePolyline = (
 
       newPolyline.position.set(mid.x, mid.y, mid.z);
 
+      if (onDrawComplete) {
+        onDrawComplete(newPolyline);
+      }
+
       setPl(newPolyline);
     };
+
+    if (onStart) {
+      onStart();
+    }
 
     gl.domElement.addEventListener("click", clickPoint);
 
@@ -160,11 +186,33 @@ export const usePolyline = (
 
     gl.domElement.addEventListener("mousemove", mouseMove);
 
+    const handleAbort = () => (onAbort ? onAbort(polyline) : () => {});
+
+    if (onAbort) {
+      document.addEventListener("keydown", handleAbort);
+    }
+
+    const handleSnap = (e: MouseEvent) =>
+      onSnap ? (snapPoint = onSnap(e)) : () => {};
+
+    if (onSnap) {
+      gl.domElement.addEventListener("mousemove", handleSnap);
+    }
+
     return () => {
       console.log("event disposing");
       gl.domElement.removeEventListener("click", clickPoint);
       gl.domElement.removeEventListener("contextmenu", exit);
       gl.domElement.removeEventListener("mousemove", mouseMove);
+
+      if (onAbort) {
+        console.log("removing abort from polylinr");
+        document.removeEventListener("keydown", handleAbort);
+      }
+
+      if (onSnap) {
+        gl.domElement.removeEventListener("mousemove", handleSnap);
+      }
     };
   }, []);
 

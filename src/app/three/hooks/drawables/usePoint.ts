@@ -17,7 +17,7 @@ export const usePoint = ({
   color = "gray",
   sizeAttenuation = false,
   pointSize = 10,
-  snapFunction,
+  onSnap,
   onDrawing,
   onDrawComplete,
   onAbort,
@@ -37,6 +37,8 @@ export const usePoint = ({
   }, [color, pointSize, sizeAttenuation]);
 
   useEffect(() => {
+    let snapPoint: Vector3 | undefined = undefined;
+
     const onClick = (e: MouseEvent) => {
       e.stopPropagation();
 
@@ -53,12 +55,8 @@ export const usePoint = ({
         new Plane(new Vector3(0, 1, 0))
       );
 
-      if (snapFunction) {
-        const snapPt = snapFunction();
-
-        if (snapPt) {
-          pt.copy(snapPt);
-        }
+      if (snapPoint) {
+        pt.copy(snapPoint);
       }
 
       const positions = new Float32Array([0, 0, 0]);
@@ -86,10 +84,17 @@ export const usePoint = ({
 
     gl.domElement.addEventListener("click", onClick);
 
-    const handleAbort = (event) => (onAbort ? onAbort(point_geom) : () => {});
+    const handleAbort = () => (onAbort ? onAbort(point_geom) : () => {});
 
     if (onAbort) {
       document.addEventListener("keydown", handleAbort);
+    }
+
+    const handleSnap = (e: MouseEvent) =>
+      onSnap ? (snapPoint = onSnap(e)) : () => {};
+
+    if (onSnap) {
+      gl.domElement.addEventListener("mousemove", handleSnap);
     }
 
     return () => {
@@ -100,6 +105,10 @@ export const usePoint = ({
       if (onAbort) {
         console.log("removing abort from point");
         document.removeEventListener("keydown", handleAbort);
+      }
+
+      if (onSnap) {
+        gl.domElement.removeEventListener("mousemove", handleSnap);
       }
     };
   }, []);

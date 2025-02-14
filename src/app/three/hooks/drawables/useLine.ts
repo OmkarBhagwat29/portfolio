@@ -8,17 +8,17 @@ import {
   Plane,
   Vector3,
 } from "three";
-import { getPointOnMouseEvent } from "../../utils/moseEventHelpers";
 import { UseLineOptions } from "./UseOptions";
+import { GetMouseCoordinates, GetViewportCoordinates } from "../../utils/utils";
 
 export const useLine = ({
   color = "gray",
   lineWidth = 1,
-  snapFunction,
   onStart,
   onDrawing,
   onDrawComplete,
   onAbort,
+  onSnap,
 }: UseLineOptions = {}): Object3D | null => {
   const [line, setLine] = useState<Object3D | null>(null);
 
@@ -41,20 +41,24 @@ export const useLine = ({
     const startPt = new Vector3();
     const endPt = new Vector3();
 
+    let snapPoint: Vector3 | undefined = undefined;
+
     const getDynamiceLine = (e: MouseEvent) => {
-      const pt = getPointOnMouseEvent(
-        e,
+      const mouse = GetMouseCoordinates(
+        e.clientX,
+        e.clientY,
+        size.width,
+        size.height
+      );
+
+      const pt = GetViewportCoordinates(
         camera,
-        size,
+        mouse,
         new Plane(new Vector3(0, 1, 0))
       );
 
-      if (snapFunction) {
-        const snapPt = snapFunction();
-
-        if (snapPt) {
-          pt.copy(snapPt);
-        }
+      if (snapPoint) {
+        pt.copy(snapPoint);
       }
 
       endPt.copy(pt);
@@ -87,11 +91,10 @@ export const useLine = ({
         })
       );
 
-      line.userData.controlPoints = [localStart, localEnd];
-
       scene.remove(ln);
 
       line.position.set(midpoint.x, midpoint.y, midpoint.z);
+      // line.geometry.translate(midpoint.x, midpoint.y, midpoint.z);
 
       setLine(line);
 
@@ -104,19 +107,21 @@ export const useLine = ({
 
     const getStartPoint = (e: MouseEvent) => {
       e.stopPropagation();
-      const pt = getPointOnMouseEvent(
-        e,
+      const mouse = GetMouseCoordinates(
+        e.clientX,
+        e.clientY,
+        size.width,
+        size.height
+      );
+
+      const pt = GetViewportCoordinates(
         camera,
-        size,
+        mouse,
         new Plane(new Vector3(0, 1, 0))
       );
 
-      if (snapFunction) {
-        const snapPt = snapFunction();
-
-        if (snapPt) {
-          pt.copy(snapPt);
-        }
+      if (snapPoint) {
+        pt.copy(snapPoint);
       }
 
       startPt.copy(pt);
@@ -125,8 +130,9 @@ export const useLine = ({
         onDrawing();
       }
 
-      gl.domElement.addEventListener("mousemove", getDynamiceLine);
       gl.domElement.addEventListener("click", getEndPoint);
+      gl.domElement.addEventListener("mousemove", getDynamiceLine);
+
       gl.domElement.removeEventListener("click", getStartPoint);
     };
 
@@ -134,13 +140,19 @@ export const useLine = ({
       onStart();
     }
 
-    const handleAbort = (event) => (onAbort ? onAbort(ln) : () => {});
+    const handleAbort = () => (onAbort ? onAbort(ln) : () => {});
+    const handleSnap = (e: MouseEvent) =>
+      onSnap ? (snapPoint = onSnap(e)) : () => {};
 
-    gl.domElement.addEventListener("click", getStartPoint);
+    if (onSnap) {
+      gl.domElement.addEventListener("mousemove", handleSnap);
+    }
 
     if (onAbort) {
       document.addEventListener("keydown", handleAbort);
     }
+
+    gl.domElement.addEventListener("click", getStartPoint);
 
     return () => {
       gl.domElement.removeEventListener("click", getStartPoint);
@@ -150,6 +162,10 @@ export const useLine = ({
       if (onAbort) {
         console.log("removing abort from line");
         document.removeEventListener("keydown", handleAbort);
+      }
+
+      if (onSnap) {
+        gl.domElement.removeEventListener("mousemove", handleSnap);
       }
     };
   }, []);

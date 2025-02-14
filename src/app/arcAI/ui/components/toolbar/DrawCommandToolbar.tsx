@@ -3,7 +3,7 @@ import { getDrawData } from "../../../context/DrawCommands";
 
 import ShowToolbar from "./ShowToolbar";
 import { useAppDispatch } from "@/app/lib/hooks";
-import { setDrawStatus, setDrawType } from "@/app/lib/features/draw/drawSlice";
+import { setDrawType } from "@/app/lib/features/draw/drawSlice";
 //import { useDrawContext } from "@/app/arcAI/context/DrawContext";
 
 const DrawCommandToolbar = ({ isVertical }: { isVertical: boolean }) => {

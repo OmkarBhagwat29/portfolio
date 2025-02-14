@@ -10,11 +10,12 @@ const DrawLine: FC<DrawProps> = ({
   onDrawing,
   onDrawComplete,
   onAbort,
+  onSnap,
 }) => {
   const dispatch = useAppDispatch();
   const { scene } = useThree();
 
-  const line = useLine({ onStart, onDrawing, onDrawComplete, onAbort });
+  const line = useLine({ onStart, onDrawing, onDrawComplete, onAbort, onSnap });
 
   useEffect(() => {
     if (!line) return;

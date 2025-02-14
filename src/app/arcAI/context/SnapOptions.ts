@@ -1,5 +1,7 @@
+import { SnapType } from "@/app/lib/features/snap/SnapTypes";
+
 export interface SnapOption {
-  name: string;
+  name: SnapType;
   isActive?: boolean;
 }
 
@@ -18,5 +20,11 @@ export const getSnapOptions: SnapOption[] = [
   },
   {
     name: "near",
+  },
+  {
+    name: "smart",
+  },
+  {
+    name: "ortho",
   },
 ];

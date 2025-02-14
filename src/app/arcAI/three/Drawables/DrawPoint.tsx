@@ -5,12 +5,16 @@ import { useThree } from "@react-three/fiber";
 import React, { FC, useEffect } from "react";
 import { DrawProps } from "./DrawProps";
 
-const DrawPoint: FC<DrawProps> = ({ onDrawing, onDrawComplete, onAbort }) => {
+const DrawPoint: FC<DrawProps> = ({
+  onDrawing,
+  onDrawComplete,
+  onAbort,
+  onSnap,
+}) => {
   const dispatch = useAppDispatch();
   const { scene } = useThree();
 
-
-  const point = usePoint({ onDrawing, onDrawComplete, onAbort });
+  const point = usePoint({ onDrawing, onDrawComplete, onAbort, onSnap });
 
   useEffect(() => {
     if (!point) return;

@@ -2,6 +2,7 @@ import {
   BufferGeometry,
   Camera,
   Line3,
+  Object3D,
   Plane,
   Points,
   PointsMaterial,
@@ -12,8 +13,11 @@ import {
 
 import { GetViewportCoordinates } from "../utils/utils";
 import { createSceneObjects } from "./SceneObjects";
-
-export type SnapType = "active" | "mid" | "end" | "near" | "point" | "smart";
+import { SnapType } from "@/app/lib/features/snap/SnapTypes";
+import { SnapState } from "@/app/lib/features/snap/snapSlice";
+import { getPointOnMouseEvent } from "../utils/moseEventHelpers";
+import { Size } from "@react-three/fiber";
+import { toLines, toVector3 } from "../utils/converter";
 
 export interface Snap {
   threshold: number;
@@ -202,4 +206,101 @@ export const createSnap = (
       scene.remove(scenePt);
     },
   };
+};
+
+export const getSnapPoint = (
+  e: MouseEvent,
+  objects: Object3D[],
+  snapState: SnapState,
+  camera: Camera,
+  size: Size,
+  threshold: number = 0.01
+): Vector3 | undefined => {
+  let snapPoint: Vector3 | undefined = undefined;
+  if (!snapState.active) {
+    return snapPoint;
+  }
+
+  const tempSnapPt = new Vector3();
+  let snapFound = false;
+
+  //calculate the snap plane // or create the method to get curson point
+  //const objects = createSceneObjects();
+
+  const cursor = getPointOnMouseEvent(
+    e,
+    camera,
+    size,
+    new Plane(new Vector3(0, 1, 0))
+  );
+  if (snapState.point) {
+    const pointsObjs = objects.filter((o) => o.type === "Points");
+    const points: Vector3[] = [];
+    pointsObjs.forEach((ptObj) => points.push(...toVector3(ptObj.geometry)));
+
+    points.forEach((pt) => {
+      const dist = pt.distanceToSquared(cursor);
+
+      if (dist <= threshold) {
+        tempSnapPt.copy(pt);
+        snapFound = true;
+      }
+    });
+  }
+
+  const lines: Line3[] = [];
+  if (snapState.near || snapState.mid || snapState.end) {
+    const linesObjs = objects.filter((o) => o.type === "Line");
+    console.log(linesObjs);
+    linesObjs.forEach((lnObj) => lines.push(...toLines(lnObj.geometry)));
+    // console.log(lines);
+    if (snapState.near) {
+      //console.log("finding near");
+
+      const testPt = new Vector3();
+      lines.forEach((ln) => {
+        ln.closestPointToPoint(cursor, !snapState.smart, testPt);
+
+        const dist = testPt.distanceToSquared(cursor);
+
+        if (dist <= threshold) {
+          tempSnapPt.copy(testPt);
+          snapFound = true;
+          //console.log(testPt);
+        }
+      });
+    }
+
+    if (snapState.end) {
+      //console.log("finding end");
+      lines.forEach((ln) => {
+        if (ln.start.distanceToSquared(cursor) <= threshold) {
+          tempSnapPt.copy(ln.start);
+
+          snapFound = true;
+        } else if (ln.end.distanceToSquared(cursor) <= threshold) {
+          tempSnapPt.copy(ln.end);
+
+          snapFound = true;
+        }
+      });
+    }
+
+    if (snapState.mid) {
+      lines.forEach((ln) => {
+        const center = new Vector3();
+        ln.getCenter(center);
+        if (center.distanceToSquared(cursor) <= threshold) {
+          snapFound = true;
+          tempSnapPt.copy(center);
+        }
+      });
+    }
+  }
+
+  if (snapFound) {
+    snapPoint = tempSnapPt;
+  }
+
+  return snapPoint;
 };

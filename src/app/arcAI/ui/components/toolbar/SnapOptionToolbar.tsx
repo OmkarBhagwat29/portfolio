@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import ShowToolbar from "./ShowToolbar";
 import { getSnapOptions, SnapOption } from "@/app/arcAI/context/SnapOptions";
+import { useAppDispatch } from "@/app/lib/hooks";
+import { setSnap } from "@/app/lib/features/snap/snapSlice";
 
 const SnapOptionToolbar = ({ isVertical }: { isVertical: boolean }) => {
+  const dispatch = useAppDispatch();
+
   const [options, setOptions] = useState<SnapOption[]>(getSnapOptions);
 
   const onOptionValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,6 +17,7 @@ const SnapOptionToolbar = ({ isVertical }: { isVertical: boolean }) => {
       return prv.map((item) => {
         if (item.name === optionName) {
           item.isActive = event.target.checked;
+          dispatch(setSnap(item.name));
         }
 
         return item;

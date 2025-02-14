@@ -1,11 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import drawReducer from "./features/draw/drawSlice";
+import snapReducer from "./features/snap/snapSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       draw: drawReducer,
+      snap: snapReducer,
     },
+    devTools: process.env.NODE_ENV !== "production",
   });
 };
 

@@ -1,22 +1,36 @@
 import { useAppDispatch, useAppSelector } from "@/app/lib/hooks";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getDrawData } from "../../context/DrawCommands";
 import { setDrawStatus, setDrawType } from "@/app/lib/features/draw/drawSlice";
 import { useThree } from "@react-three/fiber";
 import { Object3D } from "three";
 
+import ObjectCollection from "../../features/ObjectCollection";
+import Snap from "../../features/SnapFeature";
+
 const DrawFeatures = () => {
-  const { scene } = useThree();
+  const { scene, camera, size } = useThree();
   const dispatch = useAppDispatch();
   const drawState = useAppSelector((state) => state.draw);
+  const snapState = useAppSelector((state) => state.snap);
 
-  let ComponentToRender: React.ElementType | null = null;
+  // Create a ref to track the latest snapState
+  const snapStateRef = useRef(snapState);
+
+  useEffect(() => {
+    snapStateRef.current = snapState;
+  }, [snapState]);
+
+  const [drawComponent, setDrawComponent] = useState<
+    React.ElementType | undefined
+  >(undefined);
 
   const onStart = () => {
     dispatch(setDrawStatus("started"));
   };
-  const onDrawComplete = () => {
+  const onDrawComplete = (obj: Object3D) => {
     dispatch(setDrawStatus("completed"));
+    ObjectCollection.addObject(obj);
   };
   const onDrawing = () => {
     dispatch(setDrawStatus("drawing"));
@@ -25,24 +39,42 @@ const DrawFeatures = () => {
     scene.remove(obj);
     dispatch(setDrawType(undefined));
   };
-  
-  if (drawState.command !== undefined) {
-    const data = getDrawData.filter((d) => d.command === drawState.command);
 
-    if (data.length === 1 && data[0].component) {
-      ComponentToRender = data[0].component;
+  const onSnap = (e: MouseEvent) => {
+    e.stopPropagation();
+    // Access current state through the ref
+
+    Snap.setSnapState(snapStateRef.current);
+    Snap.setSnapPointOnMouseMove(e, camera, size, 0.1);
+    //console.log(Snap.snapPoint);
+    Snap.visualizeSnapPoint(scene);
+    return Snap.snapPoint;
+  };
+
+  useEffect(() => {
+    if (drawState.command !== undefined) {
+      const data = getDrawData.find((d) => d.command === drawState.command);
+      if (data && data.component) {
+        // console.log("Found component:", data.component);
+        setDrawComponent(() => data.component);
+      } else {
+        setDrawComponent(undefined); // Ensure it's null if not found
+      }
+    } else {
+      setDrawComponent(undefined);
     }
-  }
+  }, [drawState.command]);
 
   return (
     <>
       {" "}
-      {ComponentToRender &&
-        React.createElement(ComponentToRender, {
+      {drawComponent &&
+        React.createElement(drawComponent, {
           onStart,
           onDrawComplete,
           onDrawing,
           onAbort,
+          onSnap,
         })}
     </>
   );
